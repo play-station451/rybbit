@@ -1,8 +1,9 @@
 FROM ubuntu:22.04
 
 COPY . .
-RUN apt install sudo
-RUN sudo apt-get install curl
+RUN apt update
+RUN apt install sudo -y
+RUN sudo apt-get install curl -y
 RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN sudo sh get-docker.sh
 
