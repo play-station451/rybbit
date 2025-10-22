@@ -33,6 +33,9 @@ RUN apt-get update && \
 WORKDIR /app
 COPY . /app
 
+EXPOSE 3002
+EXPOSE 3001
+
 # 4. Set the entrypoint to run the Docker Compose stack
 # The 'docker compose up' command will run all services in the foreground.
 # We use 'CMD' here to allow for an override if needed, though 'ENTRYPOINT' is also common.
