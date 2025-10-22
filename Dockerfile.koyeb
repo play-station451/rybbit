@@ -6,6 +6,7 @@ RUN apt-get update && \
     apt-get install -y \
     ca-certificates \
     curl \
+    sudo \
     gnupg \
     lsb-release && \
     rm -rf /var/lib/apt/lists/*
@@ -28,10 +29,16 @@ RUN apt-get update && \
     docker-compose-plugin && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt-get install coreutils -y
+
 # 3. Copy the Docker Compose file and any needed files
 # Assuming your docker-compose file is named 'docker-compose.yaml'
 WORKDIR /app
 COPY . /app
+RUN dockerd &
+
+RUN chmod +x setup.sh
+RUN chmod +x docker.sh
 
 EXPOSE 3002
 EXPOSE 3001
@@ -40,7 +47,7 @@ EXPOSE 3001
 # The 'docker compose up' command will run all services in the foreground.
 # We use 'CMD' here to allow for an override if needed, though 'ENTRYPOINT' is also common.
 # '-d' (detached mode) is NOT used, so the container remains running and output is logged.
-CMD ["./setup.sh", "track.hyghj.eu.org"]
+CMD ["./docker.sh"]
 
 # Note: This setup relies on the Docker daemon being active inside the container,
 # which typically requires 'privileged' mode and volume mounting the host's Docker socket
