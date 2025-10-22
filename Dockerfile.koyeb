@@ -1,12 +1,45 @@
+# Use a base image with a robust package manager, like Debian or Ubuntu
 FROM ubuntu:22.04
 
-COPY . .
+# 1. Install necessary dependencies (curl, ca-certificates)
 RUN apt-get update && \
-    apt-get install -y sudo
-RUN sudo apt-get install curl -y
-RUN curl -fsSL https://get.docker.com -o get-docker.sh
-RUN sudo sh get-docker.sh
+    apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release && \
+    rm -rf /var/lib/apt/lists/*
 
-EXPOSE 3002
+# 2. Install Docker Engine (required for 'docker compose' in standalone mode)
+# Add Docker's official GPG key
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+# Set up the stable repository
+RUN echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Install Docker components
+RUN apt-get update && \
+    apt-get install -y \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin && \
+    rm -rf /var/lib/apt/lists/*
 
-CMD ["sudo", "docker", "compose", "up", "-d", "backend", "client", "clickhouse", "postgres"]
+# 3. Copy the Docker Compose file and any needed files
+# Assuming your docker-compose file is named 'docker-compose.yaml'
+WORKDIR /app
+COPY . /app
+
+# 4. Set the entrypoint to run the Docker Compose stack
+# The 'docker compose up' command will run all services in the foreground.
+# We use 'CMD' here to allow for an override if needed, though 'ENTRYPOINT' is also common.
+# '-d' (detached mode) is NOT used, so the container remains running and output is logged.
+CMD ["docker", "compose", "up"]
+
+# Note: This setup relies on the Docker daemon being active inside the container,
+# which typically requires 'privileged' mode and volume mounting the host's Docker socket
+# when running this image (e.g., `docker run --privileged -v /var/run/docker.sock:/var/run/docker.sock ...`).
+# This is known as "Docker-in-Docker" or "DooD" and has security implications.
