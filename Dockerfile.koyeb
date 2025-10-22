@@ -1,3 +1,5 @@
 FROM koyeb/docker-compose
 
 COPY . .
+
+CMD ["docker", "compose". "up", "-d", "backend", "client", "clickhouse", "postgres"]
