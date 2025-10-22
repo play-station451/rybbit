@@ -7,4 +7,6 @@ RUN sudo apt-get install curl -y
 RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN sudo sh get-docker.sh
 
+EXPOSE 3002
+
 CMD ["sudo", "docker", "compose", "up", "-d", "backend", "client", "clickhouse", "postgres"]
