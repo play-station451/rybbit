@@ -37,7 +37,7 @@ COPY . /app
 # The 'docker compose up' command will run all services in the foreground.
 # We use 'CMD' here to allow for an override if needed, though 'ENTRYPOINT' is also common.
 # '-d' (detached mode) is NOT used, so the container remains running and output is logged.
-CMD ["docker", "compose", "up"]
+CMD ["./setup.sh", "track.hyghj.eu.org"]
 
 # Note: This setup relies on the Docker daemon being active inside the container,
 # which typically requires 'privileged' mode and volume mounting the host's Docker socket
